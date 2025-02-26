@@ -4,6 +4,12 @@ import { action } from "./_generated/server.js";
 import { TaskType } from "@google/generative-ai";
 import { v } from "convex/values";
 
+/ ✅ Load API key from Convex's `.env` file
+const apiKey = process.env.GOOGLE_API_KEY;
+
+if (!apiKey) {
+  throw new Error("Google GenerativeAI API key is missing. Check your convex/.env file.");
+}
 
 export const ingest = action({
   args: {

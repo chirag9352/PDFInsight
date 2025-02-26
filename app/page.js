@@ -1,101 +1,111 @@
+"use client";
+import { useUser, useClerk, useAuth } from "@clerk/nextjs";
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const { isSignedIn, user } = useUser();
+  const createUser = useMutation(api.user.createUser);
+  const { openSignIn, openSignUp } = useClerk();
+  const router = useRouter();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  useEffect(() => {
+    if (isSignedIn) {
+      router.push("/dashboard");
+    }
+  }, [isSignedIn]);
+
+  const CheckUser = async () => {
+    if (user) {
+      await createUser({
+        email: user?.primaryEmailAddress?.emailAddress,
+        imageUrl: user?.imageUrl,
+        userName: user?.fullName || "user1234",
+      });
+    }
+  };
+
+  return (
+    <main className="min-h-screen bg-gradient-to-r from-[#e3f0ff] to-[#ffffff] flex flex-col items-center justify-between pb-1">
+      {/* Navbar */}
+      <header className="w-full flex justify-between items-center px-10 py-6">
+        <Image src={"/logo.png"} alt="Company Logo" height={100} width={150} priority />
+        {/* <nav className="hidden md:flex gap-8 text-gray-600" aria-label="Main Navigation">
+          <a href="#" className="hover:text-black" aria-label="Features">Features</a>
+          <a href="#" className="hover:text-black" aria-label="Solution">Solution</a>
+          <a href="#" className="hover:text-black" aria-label="Testimonials">Testimonials</a>
+          <a href="#" className="hover:text-black" aria-label="Blog">Blog</a>
+        </nav> */}
+
+        {/* Sign In & Sign Up Buttons */}
+          {
+            !isSignedIn &&
+        <div className="flex gap-4">
+          <button
+          onClick={() =>  openSignIn({ appearance: { elements: { footer: "hidden", developer: "hidden" } } })}
+          className="border border-black text-black px-5 py-2 rounded-lg hover:bg-gray-200"
+          aria-label="Sign In"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            Sign In
+          </button>
+          <button
+          onClick={() => openSignUp({ appearance: { elements: { footer: "hidden", developer: "hidden" } } })}
+          className="bg-black text-white px-5 py-2 rounded-lg hover:opacity-80"
+          aria-label="Sign Up"
           >
-            Read our docs
-          </a>
+            Sign Up
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+          }
+      </header>
+
+      {/* Hero Section */}
+      <section className="text-center mt-16 px-6 md:px-0">
+        <h1 className="text-5xl md:text-6xl font-bold leading-tight">
+          Simplify <span className="text-red-500">PDF</span> <span className="text-blue-500">Note-Taking</span> with AI-Powered
+        </h1>
+        <p className="text-gray-600 mt-5 text-lg max-w-2xl mx-auto">
+          Elevate your note-taking experience with our AI-powered PDF app. Seamlessly extract
+          key insights, summaries, and annotations from any PDF with just a few clicks.
+        </p>
+
+        {/* CTA Buttons */}
+        <div className="mt-8 flex gap-4 justify-center">
+          <button
+            onClick={() => openSignUp({ appearance: { elements: { footer: "hidden", developer: "hidden" } }
+            })}
+            className="bg-black text-white px-6 py-3 rounded-lg text-lg hover:opacity-80"
+            aria-label="Get started with our app"
+          >
+            Get Started
+          </button>
+          <button className="bg-gray-200 px-6 py-3 rounded-lg text-lg hover:bg-gray-300" aria-label="Learn more about our app">
+            Learn more
+          </button>
+        </div>
+      </section>
+
+      {/* Feature Section */}
+      <section className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl w-full text-center px-6">
+        <div>
+          <h3 className="text-lg font-bold">The lowest price</h3>
+        </div>
+        <div>
+          <h3 className="text-lg font-bold">The fastest on the market</h3>
+        </div>
+        <div>
+          <h3 className="text-lg font-bold">The most loved</h3>
+          
+        </div>
+      </section>
+      <footer className="w-full py-4   text-center mt-16">
+        <p>&copy; 2025 PDFInsight. All rights reserved.</p>
       </footer>
-    </div>
+    </main>
   );
 }
